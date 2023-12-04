@@ -56,11 +56,11 @@
      - Iterates through each level, creating enemies, handling player and enemy turns, and displays a game over
        message after completing all levels. 
        
-  ### Player.cpp
+  #### Player.cpp
      - The Player class manages the player's health, attacks, and special abilities.
      - It includes functions for attacking enemies, healing, dealing damage, handling special abilities, and
        increasing stats based on the game level completed.
-  ### Murloc.cpp
+  #### Murloc.cpp
     - The Murloc class represents a powerful opponent in a game.
     - It has functions to perform various attacks, including a Ground Dash and Speed Dash, each with different damage
        multipliers. The class also includes health regeneration capabilities and a probability function to determine
