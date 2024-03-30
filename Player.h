@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "Main.h"
+#include "GameManager.h"
 
 class Enemy;
 
@@ -12,51 +12,52 @@ enum class ESpecialAbility : unsigned char
 
 struct SpecialItems
 {
-	bool bMap = false;
-	bool bSword = false;
-	bool bShield = false;
-	bool bArmour = false;
-	bool bBow = false;
+	bool m_HasMap = false;
+	bool m_HasSword = false;
+	bool m_HasShield = false;
+	bool m_HasArmour = false;
+	bool m_HasBow = false;
 };
 
 struct SpecialAbilities
 {
-	bool bCriticalHit = false;
-	bool bBlocker = false;
-	bool bLifeSteal = false;
-	bool bRangedAttack = false;
+	bool m_HasCriticalHit = false;
+	bool m_HasBlocker = false;
+	bool m_HasLifeSteal = false;
+	bool m_HasRangedAttack = false;
 };
 
 class Player
 {
 private:
-	bool bDead;
-	bool bNotTakeDamage;
+	SpecialItems m_SpecialItems;
+	SpecialAbilities m_SpecialAbilities;
 
-	SpecialItems SpecialItems;
-	SpecialAbilities SpecialAbilities;
 	const std::string m_Name = "Geralt";
+
+	bool m_IsDead;
+	bool m_CanTakeDamage;
 	int m_MaxHealth;
 	int m_Health;
-	int m_Heal;
+	unsigned int m_Heal;
 	unsigned int m_MeleeDamage;
 	unsigned int m_RangedDamage;
 
 private:
 	int CriticalHit();
 	void Block();
-	void LifeSteal(std::shared_ptr<Enemy>& Enemy);
+	void LifeSteal(std::shared_ptr<Enemy>& enemy);
 	void RangedAttackPower();
 	ESpecialAbility Probablity();
-	void SetStats(int MaxHealth, int Heal, int MeeleDamage, int RangedDamage);
+	void SetStats(int maxHealth, int heal, int meeleDamage, int rangedDamage);
 
 public:
 	Player();
-	void Attack(std::vector<std::shared_ptr<Enemy>>& Enemies);
+	void Attack(std::vector<std::shared_ptr<Enemy>>& enemies);
 	void Heal();
-	void DealDamage(int Damage);
-	bool Dead();
-	void IncreaseStats(const ELevels& CurrentLevel);
+	void DealDamage(int damage);
+	bool IsDead();
+	void IncreaseStats(const ELevels currentLevel);
 	inline int GetHealth() const { return m_Health; }
 	inline int GetMeeleDamage() const { return m_MeleeDamage; }
 	inline int GetRangedDamage() const { return m_RangedDamage; }

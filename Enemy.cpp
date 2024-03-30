@@ -2,27 +2,27 @@
 #include "Enemy.h"
 #include "Player.h"
 
-int Enemy::EnemyCount = 0;
+int Enemy::s_EnemyCount = 0;
 
 Enemy::Enemy()
 {
-	bDead = false;
-	Enemy::EnemyCount++;
+	Enemy::s_EnemyCount++;
+	m_IsDead = false;
 	m_Health = 100;
 	m_Damage = 50;
 	m_Defese = 50;
 }
 
-void Enemy::Attack(std::shared_ptr<Player>& Player)
+void Enemy::Attack(std::shared_ptr<Player>& player)
 {
-	Player->DealDamage(m_Damage);
+	player->DealDamage(m_Damage);
 }
 
 bool Enemy::Defended()
 {
 	srand((unsigned) time(NULL));
 	int Defense = rand();
-	Defense = rand() % 100 + 1;  //Generate random number 1 to 100
+	Defense = rand() % 100 + 1;  // Generate random number 1 to 100
 	if (Defense <= 20) //20% probability 
 	{
 		std::cout << "" << std::endl;
@@ -33,26 +33,26 @@ bool Enemy::Defended()
 		return false;
 }
 
-void Enemy::DealDamage(int Damage)
+void Enemy::DealDamage(int damage)
 {
-	if (!(m_Health <= 0))
+	if (m_Health > 0)
 	{
 		if (Defended()) return;
 
-		std::cout << "   ||   Damage Done: " << Damage << std::endl;
-		m_Health -= Damage;
+		std::cout << "   ||   Damage Done: " << damage << std::endl;
+		m_Health -= damage;
 		if (m_Health <= 0)
 		{
-			EnemyCount--;
+			s_EnemyCount--;
+			m_IsDead = true;
 			std::cout << "--Enemy: now, I'm dead :(-----" << std::endl;
-			bDead = true;
 		}
 	}
 }
 
-bool Enemy::Dead() const
+bool Enemy::IsDead() const
 {
-	if (bDead) return true;
+	if (m_IsDead) return true;
 	else 
 		return false;
 }

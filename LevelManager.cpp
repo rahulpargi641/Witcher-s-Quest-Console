@@ -4,26 +4,23 @@
 
 LevelManager::LevelManager()
 {
-	m_CurrentLevel = ELevels::EL_Default;
-	m_Turn = ETurn::ET_Player;
 	m_Player = std::make_unique<Player>();
 }
 
-void LevelManager::CreateLevel(int CurrentLevel)
+void LevelManager::CreateLevel(int currentLevel)
 {
-	SetCurrentLevel(CurrentLevel);
-	CreateEnemies(CurrentLevel);
+	SetCurrentLevel(currentLevel);
+	CreateEnemies(currentLevel);
 }
 
-void LevelManager::CreateEnemies(int CurrentLevel)
+void LevelManager::CreateEnemies(int currentLevel)
 {
-	if (CurrentLevel != ELevels::EL_BossLevel)
+	if (currentLevel != ELevels::EL_BossLevel)
 	{
-		for (int i = 0; i < CurrentLevel; i++)
+		for (int i = 0; i < currentLevel; i++)
 		{
 			std::shared_ptr<Enemy> Enemy = std::make_unique<class Enemy>();
 			m_Enemies.push_back(Enemy);
-			//std::cout << i + 1 << " Enemy Created!" << std::endl;
 		}
 		std::cout << "" << std::endl;
 	}
@@ -35,58 +32,9 @@ void LevelManager::CreateEnemies(int CurrentLevel)
 	}
 }
 
-void LevelManager::PlayerPlaying()
+void LevelManager::SetCurrentLevel(int currentLevel)
 {
-	char Input;
-	ShowInfo();
-	std::cout << "" << std::endl;
-	std::cout << "Geralt's Turn!      ||     ";
-	std::cout << "Press 'A' to Attack, Press 'H' to Heal" << std::endl;
-	
-	do
-	{
-		std::cin >> Input;
-		if (Input == 'A' || Input == 'a')
-		{
-			std::system("cls");
-			std::cout << "" << std::endl;
-			m_Player->Attack(m_Enemies);
-			break;
-		}
-		else if (Input == 'H' || Input == 'h')
-		{
-			std::system("cls");
-			std::cout << "" << std::endl;
-			m_Player->Heal();
-			break;
-		}
-		else
-		{
-			std::cout << "" << std::endl;
-			std::cout << "Wrong Input, Press 'A' or Press 'H' " << std::endl;
-		} 
-
-	} while (!(Input == 'A' || Input == 'H'));
-	
-}
-
-void LevelManager::EnemyAIPlaying()
-{
-	std::cout << "" << std::endl;
-	std::cout << "Enemy AI playing....." << std::endl;
-	//std::cout << "--------------------------------------" << std::endl;
-	for (int i = 0; i < m_Enemies.size(); i++)
-	{
-		std::cout << "Enemy " << i + 1 << " Attacked Geralt!";
-		m_Enemies[i]->Attack(m_Player);
-	}
-	std::cout << "" << std::endl;
-	
-}
-
-void LevelManager::SetCurrentLevel(int CurrentLevel)
-{
-	switch (CurrentLevel)
+	switch (currentLevel)
 	{
 	case 1:
 		m_CurrentLevel = ELevels::EL_First;
@@ -110,13 +58,14 @@ void LevelManager::SetCurrentLevel(int CurrentLevel)
 	}
 }
 
-void LevelManager::LevelComplete()
+void LevelManager::ProcessLevelComplete()
 {
 	if (m_CurrentLevel == ELevels::EL_BossLevel) return;
+
 	m_Player->IncreaseStats(m_CurrentLevel);
 }
 
-void LevelManager::ShowInfo()
+void LevelManager::ShowGameInfo()
 {
 	std::cout << "" << std::endl;
 	std::cout << "GAME INFO:" << std::endl;

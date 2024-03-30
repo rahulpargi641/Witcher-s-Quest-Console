@@ -6,22 +6,23 @@ class Player;
 class Enemy
 {
 private:
-	static int EnemyCount;
+	static int s_EnemyCount;
 protected:
-	bool bDead;
+	bool m_IsDead;
 	int m_Health;
 	int m_Damage;
 	int m_Defese;
 
-	virtual bool Defended();
+protected:
+	virtual bool Defended(); 
 	
 public:
 	Enemy();
-	virtual void Attack(std::shared_ptr<Player>& Player);
-	virtual void DealDamage(int Damage);
-	virtual bool Dead() const;
+	virtual void Attack(std::shared_ptr<Player>& player);
+	virtual void DealDamage(int damage);
+	virtual bool IsDead() const;
 	inline int GetHealth() const { return m_Health; }
-	inline void SetHealth(int Health) { m_Health = Health; }
+	inline void SetHealth(int health) { m_Health = health; }
 	inline int GetDamage() const { return m_Damage; }
 };
 

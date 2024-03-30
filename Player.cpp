@@ -4,9 +4,8 @@
 
 Player::Player()
 {
-	bDead = false;
-	bNotTakeDamage = false;
-
+	m_IsDead = false;
+	m_CanTakeDamage = true;
 	m_MaxHealth = 500;
 	m_Health = m_MaxHealth;
 	m_Heal = 100;
@@ -14,39 +13,41 @@ Player::Player()
 	m_RangedDamage = 30;
 }
 
-void Player::SetStats(int MaxHealth, int Heal, int MeeleDamage, int RangedDamage)
+void Player::SetStats(int maxHealth, int heal, int meeleDamage, int rangedDamage)
 {
-	m_MaxHealth = MaxHealth;
+	m_MaxHealth = maxHealth;
 	m_Health = m_MaxHealth;
-	m_Heal = Heal;
-	m_MeleeDamage = MeeleDamage;
-	m_RangedDamage = RangedDamage;
+	m_Heal = heal;
+	m_MeleeDamage = meeleDamage;
+	m_RangedDamage = rangedDamage;
 }
 
-void Player::Attack(std::vector<std::shared_ptr<Enemy>>& Enemies)
+void Player::Attack(std::vector<std::shared_ptr<Enemy>>& enemies)
 {
-	for (int i = Enemies.size() - 1; i >= 0; i--)
+	for (int i = enemies.size() - 1; i >= 0; i--)
 	{
 		std::cout << "Geralt attacked Enemy " << i + 1 << "  ";
 
-		if (SpecialItems.bSword && SpecialAbilities.bCriticalHit && Probablity() == ESpecialAbility::ESA_CriticalHit) Enemies[i]->DealDamage(CriticalHit());
-
-		else if (SpecialItems.bBow && SpecialAbilities.bRangedAttack && Probablity() == ESpecialAbility::ESA_RangedAttack)
+		if (m_SpecialItems.m_HasSword && m_SpecialAbilities.m_HasCriticalHit && Probablity() == ESpecialAbility::ESA_CriticalHit)
+		{
+			enemies[i]->DealDamage(CriticalHit());
+		}
+		else if (m_SpecialItems.m_HasBow && m_SpecialAbilities.m_HasRangedAttack && Probablity() == ESpecialAbility::ESA_RangedAttack)
 		{
 			RangedAttackPower();
-			Enemies[i]->DealDamage(m_RangedDamage);
+			enemies[i]->DealDamage(m_RangedDamage);
 		}
 		else
 		{
-			Enemies[i]->DealDamage(m_MeleeDamage);
-			if (SpecialItems.bArmour && SpecialAbilities.bLifeSteal && Probablity() == ESpecialAbility::ESA_LifeSteal) LifeSteal(Enemies[i]);
+			enemies[i]->DealDamage(m_MeleeDamage);
+			if (m_SpecialItems.m_HasArmour && m_SpecialAbilities.m_HasLifeSteal && Probablity() == ESpecialAbility::ESA_LifeSteal) 
+				LifeSteal(enemies[i]);
 		}
 
-		if (Enemies[i]->Dead())
+		if (enemies[i]->IsDead())
 		{
-			Enemies.erase(Enemies.begin() + i);
+			enemies.erase(enemies.begin() + i);
 			std::cout << "" << std::endl;
-			//std::cout << "Geralt cleared Enemy " << i + 1 << std::endl;
 		}
 		break;
 	}
@@ -69,39 +70,45 @@ void Player::Heal()
 
 void Player::DealDamage(int Damage)
 {
-	if (bNotTakeDamage)
+	if (!m_CanTakeDamage)
 	{
 		std::cout << "    Player Did not take any Damage because Player previously Preformed RangedAttack()!" << std::endl;
-		bNotTakeDamage = false;
+		m_CanTakeDamage = true;
 		return;
 	}
 
-	if (SpecialItems.bShield && SpecialAbilities.bBlocker && Probablity() == ESpecialAbility::ESA_Blocker) Block();
-	else if (!(m_Health <= 0))
+	if (m_SpecialItems.m_HasShield && m_SpecialAbilities.m_HasBlocker && Probablity() == ESpecialAbility::ESA_Blocker)
 	{
-		std::cout << "   ||   Damage Done: " << Damage << std::endl;
-		std::cout << "" << std::endl;
+		Block();
+	}
+	else if (m_Health > 0)
+	{
+		std::cout << "   ||   Damage Done: " << Damage << std::endl << std::endl;
 		m_Health -= Damage;
-		if (m_Health <= 0) bDead = true;
+		if (m_Health <= 0)
+		{
+			m_IsDead = true;
+			std::cout << "--Geralt: I'm dead!--" << std::endl;
+		}
 	}
 }
 
-void Player::IncreaseStats(const ELevels& CurrentLevel)
+void Player::IncreaseStats(const ELevels currentLevel)
 {
 	std::cout << "----Player Stats Increased!----" << std::endl;
-	switch (CurrentLevel)
+	switch (currentLevel)
 	{
 	case 1:
 		SetStats(600, 200, 150, 100);
-		SpecialItems.bMap = true;
+		m_SpecialItems.m_HasMap = true;
 
 		std::cout << "----Player Recevied the Map!----" << std::endl;
 		std::cout << "" << std::endl;
 		break;
 	case 2:
 		SetStats(700, 300, 200, 150);
-		SpecialItems.bSword = true;
-		SpecialAbilities.bCriticalHit = true;
+		m_SpecialItems.m_HasSword = true;
+		m_SpecialAbilities.m_HasCriticalHit = true;
 
 		std::cout << "----2nd Special Ability critical Hit Unlocked! - Critical Hit!----" << std::endl;
 		std::cout << "----Geralt Received the Swored!----" << std::endl;
@@ -109,8 +116,8 @@ void Player::IncreaseStats(const ELevels& CurrentLevel)
 		break;
 	case 3:
 		SetStats(800, 400, 250, 200);
-		SpecialItems.bShield = true;
-		SpecialAbilities.bBlocker = true;
+		m_SpecialItems.m_HasShield = true;
+		m_SpecialAbilities.m_HasBlocker = true;
 
 		std::cout << "----3rd Special Ability Unlocked! - Blocker!----" << std::endl;
 		std::cout << "----Geralt Received the Shield----" << std::endl;
@@ -118,8 +125,8 @@ void Player::IncreaseStats(const ELevels& CurrentLevel)
 		break;
 	case 4:
 		SetStats(900, 500, 300, 250);
-		SpecialItems.bArmour = true;
-		SpecialAbilities.bLifeSteal = true;
+		m_SpecialItems.m_HasArmour = true;
+		m_SpecialAbilities.m_HasLifeSteal = true;
 
 		std::cout << "----4th Special Ability Unlocked! - Life Steal!----" << std::endl;
 		std::cout << "----Geralt Received the Armour!----" << std::endl;
@@ -127,8 +134,8 @@ void Player::IncreaseStats(const ELevels& CurrentLevel)
 		break;
 	case 5:
 		SetStats(1000, 600, 350, 300);
-		SpecialItems.bBow = true;
-		SpecialAbilities.bRangedAttack = true;
+		m_SpecialItems.m_HasBow = true;
+		m_SpecialAbilities.m_HasRangedAttack = true;
 
 		std::cout << "----5th Special Ability Unlocked! - Ranged Attack!----" << std::endl;
 		std::cout << "----Geralt Received the Bow!----" << std::endl;
@@ -139,15 +146,9 @@ void Player::IncreaseStats(const ELevels& CurrentLevel)
 	}
 }
 
-bool Player::Dead()
+bool Player::IsDead()
 {
-	if (bDead)
-	{
-		std::cout << "--Geralt: I'm dead!--" << std::endl;
-		return true;
-	}
-	else
-		return false;
+	return m_IsDead;
 }
 
 int Player::CriticalHit()
@@ -163,12 +164,12 @@ void Player::Block()
 	std::cout << "" << std::endl;
 }
 
-void Player::LifeSteal(std::shared_ptr<Enemy>& Enemy)
+void Player::LifeSteal(std::shared_ptr<Enemy>& enemy)
 {
-	if (!Enemy->Dead())
+	if (!enemy->IsDead())
 	{
-		int StealedHealth = Enemy->GetHealth() / 3;
-		Enemy->SetHealth(Enemy->GetHealth() - StealedHealth);
+		int StealedHealth = enemy->GetHealth() / 3;
+		enemy->SetHealth(enemy->GetHealth() - StealedHealth);
 		m_Health += StealedHealth; // if geralt steals vitality, health can go greater then MaxHealth of the Geralt!
 		std::cout << "" << std::endl;
 		std::cout << "Geralt's Armour Stealed the vitality of the Enemy!" << std::endl;
@@ -179,7 +180,7 @@ void Player::LifeSteal(std::shared_ptr<Enemy>& Enemy)
 
 void Player::RangedAttackPower()
 {
-	bNotTakeDamage = true;
+	m_CanTakeDamage = false;
 	std::cout << "" << std::endl;
 	std::cout << "Geralt Performed Ranged Attack!" << std::endl;
 }
